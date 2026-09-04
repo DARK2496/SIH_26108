@@ -1,0 +1,1387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Standard Engine — Standards Recommendation Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy-deep:#082a46;
+    --navy:#0b3d63;
+    --navy-mid:#12507f;
+    --paper:#f4f6f8;
+    --white:#ffffff;
+    --ink:#152230;
+    --ink-soft:#5b6b7c;
+    --ink-faint:#8494a4;
+    --line:#dbe2e9;
+    --line-strong:#c1cbd6;
+    --amber:#a9691f;
+    --amber-bg:#faf1e2;
+    --amber-line:#e6cd9e;
+    --red:#a23b3b;
+    --red-bg:#fbeceb;
+    --red-line:#e9c3c1;
+    --green:#2c7350;
+    --green-bg:#e9f3ee;
+    --green-line:#bcdbcb;
+    --teal:#1f6e6e;
+    --teal-bg:#e8f2f2;
+    --font-head:'Public Sans',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    --font-body:'IBM Plex Sans',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    --font-mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:14.5px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--navy-mid);}
+
+  /* ---------- Header ---------- */
+  header.app{
+    background:linear-gradient(180deg,var(--navy) 0%,var(--navy-deep) 100%);
+    color:#fff;
+    padding:18px 28px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:24px;
+    flex-wrap:wrap;
+    border-bottom:3px solid #0a3357;
+  }
+  .brand{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;}
+  .brand .mark{
+    font-family:var(--font-head);
+    font-weight:700;
+    font-size:20px;
+    letter-spacing:0.2px;
+  }
+  .brand .mark span{color:#e8c78a;}
+  .brand .tag{
+    font-size:12.5px;
+    color:#c4d3e2;
+    font-style:italic;
+    font-weight:400;
+  }
+  .header-meta{
+    display:flex;
+    gap:18px;
+    align-items:center;
+    font-size:11.5px;
+    color:#a9bdd0;
+  }
+  .header-meta .id-chip{
+    border:1px solid #2f5578;
+    background:#0e4570;
+    color:#dce8f3;
+    padding:3px 9px;
+    border-radius:3px;
+    font-family:var(--font-mono);
+    font-size:11px;
+  }
+
+  /* ---------- Layout ---------- */
+  main.layout{
+    display:grid;
+    grid-template-columns:340px 1fr;
+    gap:0;
+    align-items:start;
+    min-height:calc(100vh - 64px);
+  }
+  @media (max-width:880px){
+    main.layout{grid-template-columns:1fr;}
+  }
+
+  aside.rail{
+    background:var(--white);
+    border-right:1px solid var(--line);
+    padding:22px 20px 40px;
+    position:sticky;
+    top:0;
+    align-self:start;
+    max-height:100vh;
+    overflow-y:auto;
+  }
+  @media (max-width:880px){
+    aside.rail{position:static;max-height:none;border-right:none;border-bottom:1px solid var(--line);}
+  }
+
+  section.content{padding:26px 30px 60px;max-width:980px;}
+
+  h2.rail-h{
+    font-family:var(--font-head);
+    font-size:11px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+    font-weight:600;
+    margin:22px 0 10px;
+    border-bottom:1px solid var(--line);
+    padding-bottom:6px;
+  }
+  h2.rail-h:first-of-type{margin-top:0;}
+
+  textarea#queryInput{
+    width:100%;
+    min-height:112px;
+    resize:vertical;
+    border:1px solid var(--line-strong);
+    border-radius:4px;
+    padding:10px 11px;
+    font-family:var(--font-body);
+    font-size:13.5px;
+    color:var(--ink);
+    background:#fbfcfd;
+  }
+  textarea#queryInput:focus{outline:2px solid var(--navy-mid);outline-offset:1px;border-color:var(--navy-mid);}
+
+  .example-list{display:flex;flex-direction:column;gap:6px;margin-top:10px;}
+  .example-btn{
+    text-align:left;
+    background:var(--white);
+    border:1px solid var(--line);
+    border-left:3px solid var(--navy-mid);
+    padding:8px 10px;
+    font-size:12.3px;
+    color:var(--ink-soft);
+    border-radius:2px;
+    cursor:pointer;
+    font-family:var(--font-body);
+  }
+  .example-btn:hover{background:#f2f6fa;color:var(--ink);}
+  .example-btn b{display:block;color:var(--ink);font-size:12.5px;margin-bottom:2px;font-weight:600;}
+
+  button.primary{
+    margin-top:14px;
+    width:100%;
+    background:var(--navy);
+    color:#fff;
+    border:none;
+    padding:11px 14px;
+    font-family:var(--font-head);
+    font-weight:600;
+    font-size:14px;
+    border-radius:4px;
+    cursor:pointer;
+    letter-spacing:0.2px;
+  }
+  button.primary:hover{background:var(--navy-mid);}
+  button.primary:disabled{background:#9fb0bf;cursor:default;}
+
+  button.ghost{
+    background:transparent;
+    border:1px solid var(--line-strong);
+    color:var(--ink-soft);
+    padding:6px 10px;
+    font-size:12px;
+    border-radius:3px;
+    cursor:pointer;
+    font-family:var(--font-body);
+  }
+  button.ghost:hover{border-color:var(--navy-mid);color:var(--navy-mid);}
+
+  .rail-note{font-size:11.8px;color:var(--ink-faint);line-height:1.5;margin-top:6px;}
+  .rail-note b{color:var(--ink-soft);}
+
+  .legend-row{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--ink-soft);margin:5px 0;}
+  .dot{width:8px;height:8px;border-radius:50%;flex:none;}
+
+  /* ---------- Empty state ---------- */
+  .empty-state{
+    border:1px dashed var(--line-strong);
+    border-radius:6px;
+    padding:38px 30px;
+    background:var(--white);
+    color:var(--ink-soft);
+    text-align:left;
+  }
+  .empty-state h3{font-family:var(--font-head);color:var(--ink);margin:0 0 8px;font-size:17px;}
+  .empty-state ol{margin:14px 0 0;padding-left:18px;font-size:13px;}
+  .empty-state ol li{margin-bottom:5px;}
+
+  /* ---------- Pipeline tracker ---------- */
+  .pipeline{
+    display:flex;
+    gap:0;
+    margin-bottom:22px;
+    background:var(--white);
+    border:1px solid var(--line);
+    border-radius:5px;
+    overflow:hidden;
+  }
+  .pipe-step{
+    flex:1;
+    padding:9px 6px;
+    text-align:center;
+    font-size:10.6px;
+    font-family:var(--font-head);
+    font-weight:600;
+    letter-spacing:0.02em;
+    color:var(--ink-faint);
+    background:#f7f9fb;
+    border-right:1px solid var(--line);
+    position:relative;
+    transition:background .25s,color .25s;
+  }
+  .pipe-step:last-child{border-right:none;}
+  .pipe-step.active{background:var(--navy);color:#fff;}
+  .pipe-step.done{background:var(--green-bg);color:var(--green);}
+
+  /* ---------- Understood panel ---------- */
+  .panel{
+    background:var(--white);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:16px 18px;
+    margin-bottom:18px;
+  }
+  .panel h3{
+    font-family:var(--font-head);
+    font-size:12.5px;
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    color:var(--ink-faint);
+    margin:0 0 10px;
+    font-weight:600;
+  }
+  .chip-row{display:flex;flex-wrap:wrap;gap:7px;}
+  .chip{
+    background:#eef3f8;
+    border:1px solid var(--line);
+    color:var(--ink);
+    padding:4px 10px;
+    border-radius:3px;
+    font-size:12px;
+    font-family:var(--font-mono);
+  }
+  .chip .k{color:var(--ink-faint);margin-right:5px;font-family:var(--font-body);}
+  .extract-mode{font-size:11px;color:var(--ink-faint);margin-top:10px;}
+  .extract-mode.ai{color:var(--teal);}
+
+  .toggle-original{font-size:12px;color:var(--navy-mid);cursor:pointer;margin-top:8px;display:inline-block;text-decoration:underline;}
+  .original-text{
+    margin-top:8px;font-size:12.5px;color:var(--ink-soft);
+    background:#f7f9fb;border:1px solid var(--line);border-radius:4px;padding:9px 11px;
+    display:none;white-space:pre-wrap;
+  }
+
+  /* ---------- Outdated banner ---------- */
+  .banner{
+    border-radius:6px;
+    padding:14px 18px;
+    margin-bottom:18px;
+    border:1px solid var(--red-line);
+    background:var(--red-bg);
+  }
+  .banner.ok{border-color:var(--green-line);background:var(--green-bg);}
+  .banner-head{display:flex;align-items:center;gap:9px;font-family:var(--font-head);font-weight:700;font-size:13.5px;color:var(--red);}
+  .banner.ok .banner-head{color:var(--green);}
+  .banner-body{font-size:13px;color:var(--ink);margin-top:7px;}
+  .banner-body b{font-family:var(--font-mono);font-weight:600;}
+  .banner-actions{margin-top:10px;display:flex;gap:8px;}
+
+  /* ---------- Result cards ---------- */
+  .results-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px;}
+  .results-head h3{font-family:var(--font-head);font-size:14px;margin:0;color:var(--ink);}
+  .results-count{font-size:11.5px;color:var(--ink-faint);}
+
+  .card{
+    background:var(--white);
+    border:1px solid var(--line);
+    border-top:3px solid var(--navy-mid);
+    border-radius:4px;
+    padding:15px 18px 16px;
+    margin-bottom:12px;
+  }
+  .card.rank1{border-top-color:#c99a3e;}
+  .card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;cursor:pointer;}
+  .card-id{font-family:var(--font-mono);font-size:11.5px;color:var(--ink-faint);letter-spacing:0.02em;}
+  .card-title{font-family:var(--font-head);font-size:15px;font-weight:600;color:var(--ink);margin:3px 0 5px;}
+  .card-scope{font-size:12.5px;color:var(--ink-soft);max-width:600px;}
+  .badge-conf{
+    flex:none;
+    text-align:center;
+    min-width:78px;
+    border-radius:4px;
+    padding:6px 10px;
+    font-family:var(--font-head);
+  }
+  .badge-conf .num{font-size:18px;font-weight:700;line-height:1;}
+  .badge-conf .lbl{font-size:9.5px;text-transform:uppercase;letter-spacing:0.04em;margin-top:2px;}
+  .conf-high{background:var(--green-bg);color:var(--green);border:1px solid var(--green-line);}
+  .conf-mid{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-line);}
+  .conf-low{background:var(--red-bg);color:var(--red);border:1px solid var(--red-line);}
+
+  .status-pill{
+    display:inline-block;font-size:10.5px;font-family:var(--font-head);font-weight:600;
+    padding:2px 7px;border-radius:3px;margin-left:8px;text-transform:uppercase;letter-spacing:0.03em;
+  }
+  .status-current{background:var(--green-bg);color:var(--green);}
+  .status-superseded{background:var(--red-bg);color:var(--red);}
+
+  .card-detail{display:none;margin-top:14px;border-top:1px dashed var(--line);padding-top:14px;}
+  .card-detail.open{display:block;}
+
+  .evidence-list{list-style:none;margin:0;padding:0;font-size:12.8px;}
+  .evidence-list li{display:flex;gap:8px;padding:3px 0;align-items:flex-start;}
+  .evidence-list .ok{color:var(--green);font-weight:700;flex:none;width:14px;}
+  .evidence-list .no{color:var(--ink-faint);font-weight:700;flex:none;width:14px;}
+
+  .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:14px;}
+  @media (max-width:640px){.detail-grid{grid-template-columns:1fr;}}
+  .detail-block h4{
+    font-family:var(--font-head);font-size:11px;text-transform:uppercase;letter-spacing:0.05em;
+    color:var(--ink-faint);margin:0 0 8px;font-weight:600;
+  }
+
+  .graph-strip{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+  .graph-node{
+    font-size:12px;padding:5px 10px;border-radius:3px;background:#f2f6fa;border:1px solid var(--line);
+    display:flex;flex-direction:column;gap:1px;
+  }
+  .graph-node .rel{font-size:9.5px;text-transform:uppercase;letter-spacing:0.03em;font-weight:700;}
+  .graph-node.TEST_METHOD{border-left:3px solid #3f6fa8;} .graph-node.TEST_METHOD .rel{color:#3f6fa8;}
+  .graph-node.SAFETY{border-left:3px solid var(--red);} .graph-node.SAFETY .rel{color:var(--red);}
+  .graph-node.TERMINOLOGY{border-left:3px solid #6b6b6b;} .graph-node.TERMINOLOGY .rel{color:#6b6b6b;}
+  .graph-node.GENERAL_REQUIREMENTS{border-left:3px solid var(--teal);} .graph-node.GENERAL_REQUIREMENTS .rel{color:var(--teal);}
+  .graph-none{font-size:12px;color:var(--ink-faint);font-style:italic;}
+
+  .cert-card{
+    background:var(--amber-bg);border:1px solid var(--amber-line);border-radius:4px;padding:9px 11px;margin-bottom:7px;font-size:12.3px;
+  }
+  .cert-card .cert-top{display:flex;justify-content:space-between;font-weight:600;color:var(--amber);}
+  .cert-card .cert-legal{color:var(--ink-soft);margin-top:4px;font-size:11.6px;}
+  .cert-none{font-size:12px;color:var(--ink-faint);font-style:italic;}
+
+  .score-table{width:100%;border-collapse:collapse;font-size:11.8px;margin-top:6px;}
+  .score-table td{padding:3px 0;color:var(--ink-soft);}
+  .score-table td.val{text-align:right;font-family:var(--font-mono);color:var(--ink);}
+  .score-table td.bar{width:110px;}
+  .bar-track{background:#eaeef2;height:6px;border-radius:3px;overflow:hidden;}
+  .bar-fill{background:var(--navy-mid);height:100%;}
+
+  .explain-btn{margin-top:12px;}
+  .explain-out{
+    margin-top:10px;font-size:12.8px;background:#f2f6fa;border:1px solid var(--line);border-radius:4px;padding:10px 12px;color:var(--ink);
+    display:none;
+  }
+  .explain-out.show{display:block;}
+  .explain-out .src{font-size:10.6px;color:var(--ink-faint);margin-top:6px;}
+
+  /* ---------- Eval panel ---------- */
+  .eval-panel{margin-top:26px;}
+  .eval-bars{display:flex;flex-direction:column;gap:10px;margin-top:12px;}
+  .eval-row{display:grid;grid-template-columns:150px 1fr 46px;align-items:center;gap:10px;font-size:12.3px;}
+  .eval-row .lbl{color:var(--ink-soft);}
+  .eval-track{background:#eaeef2;height:16px;border-radius:3px;overflow:hidden;}
+  .eval-fill{height:100%;display:flex;align-items:center;}
+  .eval-fill.keyword{background:#a9b6c2;}
+  .eval-fill.hybrid{background:var(--navy-mid);}
+  .eval-val{text-align:right;font-family:var(--font-mono);color:var(--ink);}
+  .eval-note{font-size:11.5px;color:var(--ink-faint);margin-top:12px;line-height:1.6;}
+
+  footer.app{
+    padding:20px 30px 40px;color:var(--ink-faint);font-size:11.3px;border-top:1px solid var(--line);margin-top:10px;
+  }
+</style>
+</head>
+<body>
+
+<header class="app">
+  <div class="brand">
+    <span class="mark">Smart<span>Engine</span></span>
+    <span class="tag">Know the standard before you write the tender.</span>
+  </div>
+  <div class="header-meta">
+    <span class="id-chip">SIH 2026 · PS 26108</span>
+    <span>Prototype build — Electrical &amp; Lighting demo category</span>
+  </div>
+</header>
+
+<main class="layout">
+  <aside class="rail">
+    <h2 class="rail-h">New specification analysis</h2>
+    <textarea id="queryInput" placeholder="Paste a tender clause or type a spec, e.g. &quot;LED street light, 90W, IP65, for outdoor road lighting&quot;"></textarea>
+
+    <div class="example-list">
+      <button class="example-btn" data-ex="0"><b>Standard lookup</b>LED street light, 90W, IP65, outdoor road lighting</button>
+      <button class="example-btn" data-ex="1"><b>Outdated citation</b>Tender clause: the luminaire shall conform to IS 10322 (Part 5):2016, 60W, for street lighting.</button>
+      <button class="example-btn" data-ex="2"><b>Different category</b>11kV XLPE insulated PVC sheathed power cable for outdoor underground laying</button>
+    </div>
+
+    <button class="primary" id="analyzeBtn">Analyze specification</button>
+
+    <h2 class="rail-h">How to read this</h2>
+    <div class="legend-row"><span class="dot" style="background:var(--green)"></span> Confidence ≥ 85 — high trust</div>
+    <div class="legend-row"><span class="dot" style="background:var(--amber)"></span> Confidence 70–84 — review</div>
+    <div class="legend-row"><span class="dot" style="background:var(--red)"></span> Confidence &lt; 70 — verify manually</div>
+
+    <h2 class="rail-h">About this prototype</h2>
+    <p class="rail-note">
+      Built against the accompanying SIH 26108 blueprint (<b>Smart Standard Engine</b>). This build demonstrates the five
+      must-demo mechanics end to end: hybrid retrieval, normative-reference graph expansion, evidence-bound
+      confidence, outdated-standard detection, and BIS certification matching.
+    </p>
+    <p class="rail-note">
+      <b>Dataset:</b> 12 curated demo records (LED-luminaire cluster + a lighter cables cluster), hand-built to
+      the blueprint's schema — not the full BIS catalogue. <b>Scoring:</b> a local JS engine standing in for the
+      production bge-embeddings + BM25 + FAISS + cross-encoder pipeline, using the exact weighted formula from
+      Section 10 of the blueprint.
+    </p>
+    <p class="rail-note">
+      <b>LLM use:</b> narrow and closed-book only — requirement extraction, and (on request) phrasing an
+      already-computed evidence object. The model is never asked which standard applies. If the live API call is
+      unavailable, extraction falls back to a local rules parser automatically.
+    </p>
+  </aside>
+
+  <section class="content" id="content">
+    <div class="empty-state" id="emptyState">
+      <h3>Run a specification through the pipeline</h3>
+      <p>Paste a spec or tender clause on the left, or pick one of the three seeded examples, then press
+        <b>Analyze specification</b>. The system will:</p>
+      <ol>
+        <li>Extract structured requirements (product, power, IP rating, voltage, application)</li>
+        <li>Retrieve and rank candidate Indian Standards using a hybrid lexical + semantic + attribute score</li>
+        <li>Expand the top match through the normative-reference graph to surface allied standards</li>
+        <li>Check any explicit "IS ####" citation against the amendment/supersession record</li>
+        <li>Match mandatory BIS certification rules and show a confidence-scored, evidence-backed result</li>
+      </ol>
+    </div>
+
+    <div id="resultsWrap" style="display:none;">
+      <div class="pipeline" id="pipeline"></div>
+      <div class="panel" id="understoodPanel"></div>
+      <div id="bannerWrap"></div>
+      <div class="results-head">
+        <h3>Recommended standards</h3>
+        <span class="results-count" id="resultsCount"></span>
+      </div>
+      <div id="cardsWrap"></div>
+
+      <div class="panel eval-panel" id="evalPanel">
+        <h3>Ours vs. keyword-only search — live benchmark</h3>
+        <p style="font-size:12.5px;color:var(--ink-soft);margin:0 0 4px;">
+          Computed just now, in your browser, against 3 hand-labelled seed queries and this prototype's 12-record
+          dataset — not a fabricated figure. Precision@3 checks whether the top-3 results are correct or allied;
+          allied recall checks whether the "hidden" companion standards were ever surfaced at all.
+        </p>
+        <button class="ghost" id="runEvalBtn" style="margin-top:8px;">Run live comparison</button>
+        <div class="eval-bars" id="evalBars"></div>
+        <p class="eval-note" id="evalNote"></p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="app">
+  Smart Standard Engine prototype — built from the SIH 26108 blueprint. Demo dataset and scoring engine are illustrative;
+  see the blueprint's Section 7–10 for the production dataset, embedding, and reranking design this stands in for.
+</footer>
+
+<script>
+/* =========================================================================
+   DATASET — follows the record schema from Blueprint Section 7.
+   Curated demo data (12 records). Fields not independently verified against
+   the live BIS catalogue are illustrative for prototype purposes.
+   ========================================================================= */
+const STANDARDS = [
+  {
+    standard_id:"IS_10322_5_2023",
+    designation:"IS 10322 (Part 5/Sec 1):2023",
+    edition_year:2023,
+    title:"Luminaires — Particular requirements — Street lighting luminaires",
+    scope:"Specifies requirements for LED street lighting luminaires used for outdoor road and area lighting, including safety and photometric performance requirements.",
+    category:["electrical","lighting","luminaires"],
+    product_keywords:["LED street light","outdoor luminaire","road lighting","area lighting","street lighting fixture"],
+    status:"current",
+    supersedes:"IS_10322_5_2016",
+    superseded_by:null,
+    amendments:[
+      {amd_no:1,date:"2021-06-01",summary:"Updated IP rating clause"},
+      {amd_no:2,date:"2023-11-01",summary:"Revised photometric test method"}
+    ],
+    normative_references:[
+      {standard_id:"IS_16102_1",relation:"TEST_METHOD"},
+      {standard_id:"IS_60598_1",relation:"SAFETY"},
+      {standard_id:"IS_1885_2",relation:"TERMINOLOGY"}
+    ],
+    related_standards:[{standard_id:"IS_10322_1",relation:"GENERAL_REQUIREMENTS"}],
+    certification:[{scheme:"BIS_PRODUCT_CERT",mandatory:true,notified_date:"2022-01-01"}],
+    key_attributes_schema:{power_rating_w:"numeric",ip_rating:"enum",voltage_v:"numeric",application:"enum[street|area|flood]"}
+  },
+  {
+    standard_id:"IS_10322_5_2016",
+    designation:"IS 10322 (Part 5):2016",
+    edition_year:2016,
+    title:"Luminaires — Particular requirements — Street lighting luminaires",
+    scope:"Earlier edition specifying requirements for street lighting luminaires. Superseded by the 2023 edition.",
+    category:["electrical","lighting","luminaires"],
+    product_keywords:["LED street light","street lighting fixture"],
+    status:"superseded",
+    supersedes:null,
+    superseded_by:"IS_10322_5_2023",
+    amendments:[],
+    normative_references:[],
+    related_standards:[],
+    certification:[],
+    key_attributes_schema:{power_rating_w:"numeric",application:"enum[street|area]"}
+  },
+  {
+    standard_id:"IS_16102_1",
+    designation:"IS 16102 (Part 1):2020",
+    edition_year:2020,
+    title:"Self-ballasted LED lamps and LED modules — Performance requirements — Test methods",
+    scope:"Specifies test methods for photometric and performance verification of LED lamps and modules used in general and outdoor lighting.",
+    category:["electrical","lighting","test-method"],
+    product_keywords:["LED lamp test","LED module","photometric test","LED performance"],
+    status:"current",
+    supersedes:null,
+    superseded_by:null,
+    amendments:[],
+    normative_references:[],
+    related_standards:[],
+    certification:[],
+    key_attributes_schema:{power_rating_w:"numeric"}
+  },
+  {
+    standard_id:"IS_60598_1",
+    designation:"IS 60598-1:2022",
+    edition_year:2022,
+    title:"Luminaires — Part 1: General requirements and tests",
+    scope:"Specifies general safety requirements and type tests for luminaires, including electrical, thermal and mechanical safety.",
+    category:["electrical","lighting","safety"],
+    product_keywords:["luminaire safety","fixture safety","LED driver safety"],
+    status:"current",
+    supersedes:null,
+    superseded_by:null,
+    amendments:[{amd_no:1,date:"2024-02-01",summary:"Clarified creepage and clearance distances"}],
+    normative_references:[],
+    related_standards:[],
+    certification:[{scheme:"BIS_PRODUCT_CERT",mandatory:true,notified_date:"2021-05-01"}],
+    key_attributes_schema:{ip_rating:"enum",voltage_v:"numeric"}
+  },
+  {
+    standard_id:"IS_1885_2",
+    designation:"IS 1885 (Part 2):1993",
+    edition_year:1993,
+    title:"Electrotechnical vocabulary — Part 2: Illumination",
+    scope:"Defines standard terminology used across Indian lighting and illumination standards.",
+    category:["electrical","lighting","terminology"],
+    product_keywords:["illumination terms","lighting vocabulary"],
+    status:"current",
+    supersedes:null,
+    superseded_by:null,
+    amendments:[],
+    normative_references:[],
+    related_standards:[],
+    certification:[],
+    key_attributes_schema:{}
+  },
+  {
+    standard_id:"IS_10322_1",
+    designation:"IS 10322 (Part 1):2018",
+    edition_year:2018,
+    title:"Luminaires — Part 1: General requirements",
+    scope:"Specifies general construction and marking requirements applicable to all luminaire types, referenced by part-specific luminaire standards.",
+    category:["electrical","lighting","luminaires"],
+    product_keywords:["luminaire general requirements","fixture construction"],
+    status:"current",
+    supersedes:null,
+    superseded_by:null,
+    amendments:[],
+    normative_references:[],
+    related_standards:[],
+    certification:[],
+    key_attributes_schema:{}
+  },
+  {
+    standard_id:"IS_16106",
+    designation:"IS 16106:2018",
+    edition_year:2018,
+    title:"Self-ballasted LED lamps for general lighting services — Safety specification",
+    scope:"Specifies safety requirements for self-ballasted LED lamps intended for general indoor and outdoor lighting services.",
+    category:["electrical","lighting","safety"],
+    product_keywords:["LED lamp safety","self-ballasted LED"],
+    status:"current",
+    supersedes:null,
+    superseded_by:null,
+    amendments:[],
+    normative_references:[{standard_id:"IS_60598_1",relation:"SAFETY"}],
+    related_standards:[],
+    certification:[{scheme:"BIS_PRODUCT_CERT",mandatory:true,notified_date:"2020-09-01"}],
+    key_attributes_schema:{power_rating_w:"numeric",voltage_v:"numeric"}
+  },
+  {
+    standard_id:"IS_15885_2_13",
+    designation:"IS 15885 (Part 2/Sec 13):2021",
+    edition_year:2021,
+    title:"LED driver — Safety requirements",
+    scope:"Specifies safety requirements for electronic drivers used to power LED light sources in luminaires.",
+    category:["electrical","lighting","safety","driver"],
+    product_keywords:["LED driver","LED power supply safety"],
+    status:"current",
+    supersedes:null,
+    superseded_by:null,
+    amendments:[],
+    normative_references:[],
+    related_standards:[],
+    certification:[{scheme:"BIS_PRODUCT_CERT",mandatory:true,notified_date:"2021-08-01"}],
+    key_attributes_schema:{voltage_v:"numeric",power_rating_w:"numeric"}
+  },
+  {
+    standard_id:"IS_16281",
+    designation:"IS 16281:2021",
+    edition_year:2021,
+    title:"LED module for general lighting — Safety specification",
+    scope:"Specifies safety requirements for LED modules used as light-emitting components within luminaires.",
+    category:["electrical","lighting","safety"],
+    product_keywords:["LED module safety"],
+    status:"current",
+    supersedes:null,
+    superseded_by:null,
+    amendments:[],
+    normative_references:[],
+    related_standards:[],
+    certification:[],
+    key_attributes_schema:{}
+  },
+  {
+    standard_id:"IS_7098_2",
+    designation:"IS 7098 (Part 2):2020",
+    edition_year:2020,
+    title:"Cross-linked polyethylene insulated PVC sheathed cables — Part 2: For working voltages 6.6 kV to 33 kV",
+    scope:"Specifies requirements for XLPE insulated, PVC sheathed power cables rated for working voltages from 6.6 kV up to 33 kV, including outdoor and underground laying.",
+    category:["electrical","cables","power"],
+    product_keywords:["XLPE cable","power cable","underground cable","11kV cable","outdoor cable"],
+    status:"current",
+    supersedes:null,
+    superseded_by:null,
+    amendments:[{amd_no:1,date:"2022-03-01",summary:"Revised armouring test clause"}],
+    normative_references:[
+      {standard_id:"IS_10810",relation:"TEST_METHOD"},
+      {standard_id:"IS_5831",relation:"GENERAL_REQUIREMENTS"}
+    ],
+    related_standards:[],
+    certification:[{scheme:"BIS_PRODUCT_CERT",mandatory:true,notified_date:"2021-01-01"}],
+    key_attributes_schema:{voltage_v:"numeric",application:"enum[underground|outdoor|indoor]"}
+  },
+  {
+    standard_id:"IS_10810",
+    designation:"IS 10810",
+    edition_year:2018,
+    title:"Methods of test for cables",
+    scope:"Specifies standard test methods (electrical, mechanical, thermal) applicable across Indian power and control cable standards.",
+    category:["electrical","cables","test-method"],
+    product_keywords:["cable test method"],
+    status:"current",
+    supersedes:null,
+    superseded_by:null,
+    amendments:[],
+    normative_references:[],
+    related_standards:[],
+    certification:[],
+    key_attributes_schema:{}
+  },
+  {
+    standard_id:"IS_5831",
+    designation:"IS 5831:1984",
+    edition_year:1984,
+    title:"PVC insulation and sheath of electric cables — Requirements",
+    scope:"Specifies material and construction requirements for PVC insulation and sheathing used in electric cables.",
+    category:["electrical","cables","material"],
+    product_keywords:["PVC insulation","PVC sheath","cable material"],
+    status:"current",
+    supersedes:null,
+    superseded_by:null,
+    amendments:[],
+    normative_references:[],
+    related_standards:[],
+    certification:[],
+    key_attributes_schema:{}
+  }
+];
+
+const CERT_RULES = [
+  {
+    rule_id:"CERT_LED_LUMINAIRE_001",
+    product_category:"LED luminaire — public/outdoor use",
+    standard_id:"IS_10322_5_2023",
+    certification_type:"BIS Product Certification (Compulsory Registration)",
+    mandatory:true,
+    conditions:[{field:"application",op:"in",value:["street","area","flood","public"]}],
+    legal_basis:"BIS notified product under Compulsory Registration Order — luminaires for public/outdoor lighting"
+  },
+  {
+    rule_id:"CERT_LED_DRIVER_001",
+    product_category:"LED driver",
+    standard_id:"IS_15885_2_13",
+    certification_type:"BIS Product Certification",
+    mandatory:true,
+    conditions:[],
+    legal_basis:"BIS notified product under Compulsory Registration Order — LED drivers"
+  },
+  {
+    rule_id:"CERT_CABLE_HV_001",
+    product_category:"Power cable — HV (6.6kV–33kV)",
+    standard_id:"IS_7098_2",
+    certification_type:"BIS Product Certification",
+    mandatory:true,
+    conditions:[{field:"voltage_v",op:">=",value:6600}],
+    legal_basis:"BIS notified product under Compulsory Registration Order — XLPE power cables above 1.1kV"
+  }
+];
+
+/* Hand-labelled ground truth for the live evaluation benchmark (Section 26 style) */
+const BENCHMARK = [
+  {
+    query:"LED street light, 90W, IP65, outdoor road lighting",
+    primary:"IS_10322_5_2023",
+    allied:["IS_16102_1","IS_60598_1","IS_1885_2"]
+  },
+  {
+    query:"Tender clause: the luminaire shall conform to IS 10322 (Part 5):2016, 60W, for street lighting.",
+    primary:"IS_10322_5_2023",
+    allied:["IS_16102_1","IS_60598_1"]
+  },
+  {
+    query:"11kV XLPE insulated PVC sheathed power cable for outdoor underground laying",
+    primary:"IS_7098_2",
+    allied:["IS_10810","IS_5831"]
+  }
+];
+
+const EXAMPLES = BENCHMARK.map(b=>b.query);
+
+/* =========================================================================
+   TEXT / EXTRACTION UTILITIES
+   ========================================================================= */
+const STOPWORDS = new Set(["a","an","the","for","of","in","to","with","and","is","shall","conform","used","use","tender","clause","this","that","by","or","on","as","be","are","will"]);
+
+function stem(t){
+  // Light, deliberately conservative stemmer: just enough to line up plural
+  // domain nouns ("luminaires" / "luminaire", "requirements" / "requirement")
+  // between query and document text. Not a full Porter stemmer.
+  if(t.length>=5 && t.endsWith("s") && !t.endsWith("ss")) return t.slice(0,-1);
+  return t;
+}
+
+function tokenize(str){
+  return (str||"").toLowerCase()
+    .replace(/[^a-z0-9.\s]/g," ")
+    .split(/\s+/)
+    .map(t=>t.replace(/^\.+|\.+$/g,""))
+    .filter(t=>t.length>1 && !STOPWORDS.has(t))
+    .map(stem);
+}
+
+const SYNONYMS = {
+  "light":["lamp","luminaire","fixture","lighting"],
+  "luminaire":["light","lamp","fixture"],
+  "lamp":["light","luminaire"],
+  "fixture":["luminaire","light"],
+  "cable":["wire","conductor"],
+  "outdoor":["street","area","external"],
+  "street":["outdoor","road","area"],
+  "driver":["ballast","power"]
+};
+
+function expandTokens(tokens){
+  const out = new Set(tokens);
+  tokens.forEach(t=>{ (SYNONYMS[t]||[]).forEach(s=>out.add(s)); });
+  return out;
+}
+
+function jaccard(setA,setB){
+  if(setA.size===0 || setB.size===0) return 0;
+  let inter=0;
+  setA.forEach(x=>{ if(setB.has(x)) inter++; });
+  const union = new Set([...setA,...setB]).size;
+  return union===0 ? 0 : inter/union;
+}
+
+// Overlap (Szymkiewicz–Simpson) coefficient: intersection over the SMALLER
+// set, rather than the union. A short query matched against a longer,
+// legitimately-detailed standard record shouldn't be penalised just because
+// the record also contains extra correct vocabulary — this is closer to how
+// a real embedding cosine similarity behaves for query-vs-passage matching
+// than plain Jaccard is, which is why it's used for the semantic/lexical
+// proxies below instead of jaccard().
+function overlapCoef(setA,setB){
+  if(setA.size===0 || setB.size===0) return 0;
+  let inter=0;
+  setA.forEach(x=>{ if(setB.has(x)) inter++; });
+  return inter/Math.min(setA.size,setB.size);
+}
+
+function docTokens(s){
+  return new Set(tokenize([s.title,s.scope,(s.product_keywords||[]).join(" "),(s.category||[]).join(" ")].join(" ")));
+}
+function scopeTokens(s){ return new Set(tokenize(s.scope)); }
+
+function regexExtract(text){
+  const t = text.toLowerCase();
+  const power = t.match(/(\d+(?:\.\d+)?)\s*w\b/);
+  const ip = t.match(/ip\s?-?\s?(\d{2})/);
+  const kv = t.match(/(\d+(?:\.\d+)?)\s*k\s?v\b/);
+  const v = !kv ? t.match(/(\d+(?:\.\d+)?)\s*v\b/) : null;
+  let application = null;
+  if(/street/.test(t)) application="street";
+  else if(/\barea\b/.test(t)) application="area";
+  else if(/flood/.test(t)) application="flood";
+  else if(/underground/.test(t)) application="underground";
+  else if(/outdoor/.test(t)) application="outdoor";
+  else if(/indoor/.test(t)) application="indoor";
+
+  let product = "unspecified product";
+  if(/cable/.test(t)) product = "power cable";
+  else if(/driver/.test(t)) product = "LED driver";
+  else if(/led/.test(t) && /(light|lamp|luminaire|fixture)/.test(t)) product = "LED luminaire";
+  else if(/luminaire|light|lamp|fixture/.test(t)) product = "luminaire";
+
+  const isRefMatch = text.match(/IS\s?\d{3,6}(?:\s?\(Part\s?\d+(?:\/Sec\s?\d+)?\))?\s?:?\s?\d{0,4}/gi) || [];
+
+  return {
+    product,
+    attributes:{
+      power_rating_w: power ? parseFloat(power[1]) : null,
+      ip_rating: ip ? "IP"+ip[1] : null,
+      voltage_v: kv ? parseFloat(kv[1])*1000 : (v ? parseFloat(v[1]) : null),
+      application
+    },
+    existing_IS_refs: isRefMatch.map(s=>s.trim())
+  };
+}
+
+async function llmExtract(text){
+  const body = {
+    model:"claude-sonnet-4-6",
+    max_tokens:1000,
+    system:"You are a structured requirement extractor for a government procurement standards system. Given free text describing a product or tender clause, output ONLY a JSON object, no prose and no markdown fences, in exactly this shape: {\"product\":string,\"attributes\":{\"power_rating_w\":number|null,\"ip_rating\":string|null,\"voltage_v\":number|null,\"application\":string|null},\"existing_IS_refs\":string[]}. voltage_v must be in volts (convert kV to volts). If a field is unknown use null. Never invent or complete a standard number that is not literally present in the input text.",
+    messages:[{role:"user",content:text}]
+  };
+  const resp = await fetch("https://api.anthropic.com/v1/messages",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify(body)
+  });
+  if(!resp.ok) throw new Error("api error "+resp.status);
+  const data = await resp.json();
+  const textBlock = (data.content||[]).find(b=>b.type==="text");
+  if(!textBlock) throw new Error("no text block");
+  const cleaned = textBlock.text.replace(/```json|```/g,"").trim();
+  const parsed = JSON.parse(cleaned);
+  if(!parsed.attributes) throw new Error("malformed");
+  return parsed;
+}
+
+async function llmExplain(evidence){
+  const body = {
+    model:"claude-sonnet-4-6",
+    max_tokens:1000,
+    system:"Rephrase only the facts given in the JSON evidence object below into a short, plain-English explanation (2-3 sentences) for a government procurement officer. Do not add any standard number, fact, or claim that is not present in the input JSON. If information is insufficient, say so explicitly. Output plain text only, no markdown.",
+    messages:[{role:"user",content:JSON.stringify(evidence)}]
+  };
+  const resp = await fetch("https://api.anthropic.com/v1/messages",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify(body)
+  });
+  if(!resp.ok) throw new Error("api error "+resp.status);
+  const data = await resp.json();
+  const textBlock = (data.content||[]).find(b=>b.type==="text");
+  if(!textBlock) throw new Error("no text block");
+  return textBlock.text.trim();
+}
+
+/* =========================================================================
+   SCORING ENGINE — implements the weighted formula from Blueprint Section 10
+   ========================================================================= */
+function attributeMatchAndCoverage(standard, attrs){
+  const schemaFields = Object.keys(standard.key_attributes_schema||{});
+  const queryFields = Object.keys(attrs).filter(k=>attrs[k]!==null && attrs[k]!==undefined && attrs[k]!=="");
+  if(queryFields.length===0) return {match:0,coverage:1};
+  let matched=0;
+  queryFields.forEach(f=>{
+    if(schemaFields.includes(f)){
+      if(f==="application" && standard.key_attributes_schema[f] && standard.key_attributes_schema[f].startsWith("enum")){
+        const allowed = standard.key_attributes_schema[f].replace("enum[","").replace("]","").split("|");
+        if(allowed.includes(attrs[f])) matched++;
+        else matched += 0.4; // partial credit: field relevant but value not enumerated
+      } else {
+        matched++;
+      }
+    }
+  });
+  return {match: matched/queryFields.length, coverage: matched/queryFields.length};
+}
+
+function inferDomain(product, query){
+  const p = ((product||"")+" "+(query||"")).toLowerCase();
+  if(/cable|conductor|wire|xlpe/.test(p)) return "cables";
+  if(/led|luminaire|lamp|\blight\b|driver|lighting/.test(p)) return "lighting";
+  return null;
+}
+
+function scoreAll(query, extraction){
+  const qTokensRaw = new Set(tokenize(query));
+  const qTokensExp = expandTokens(qTokensRaw);
+  const attrs = extraction.attributes||{};
+
+  // Metadata filtering (Blueprint Section 6, pipeline step [6]): narrow the
+  // pool to the query's product domain before scoring, so an irrelevant
+  // standard from another category can't win purely on a coincidental
+  // attribute-field match. Falls back to the full set if the domain is
+  // unclear or the filter would leave too little to rank.
+  const domain = inferDomain(extraction.product, query);
+  let pool = STANDARDS;
+  if(domain){
+    const filtered = STANDARDS.filter(s=>(s.category||[]).includes(domain));
+    if(filtered.length>=2) pool = filtered;
+  }
+
+  // Pass 1: content-only score, to establish the candidate cluster
+  const pass1 = pool.map(s=>{
+    const dTok = docTokens(s);
+    const sTok = scopeTokens(s);
+    const lexical = overlapCoef(qTokensRaw, dTok);
+    const semantic = overlapCoef(qTokensExp, dTok);
+    const scope = overlapCoef(qTokensRaw, sTok);
+    const am = attributeMatchAndCoverage(s, attrs);
+    const rerank = (semantic + am.match) / 2;
+    const contentScore = 0.30*semantic + 0.15*lexical + 0.20*am.match + 0.10*scope + 0.10*rerank;
+    return {s, lexical, semantic, scope, attributeMatch:am.match, coverage:am.coverage, rerank, contentScore};
+  }).sort((a,b)=>b.contentScore-a.contentScore);
+
+  const clusterSize = Math.min(6, pass1.length);
+  const cluster = pass1.slice(0, clusterSize);
+  const clusterIds = new Set(cluster.map(c=>c.s.standard_id));
+
+  function statusBonus(s){
+    if(s.status==="current") return 1;
+    if(s.status==="superseded") return 0.3;
+    return 0; // withdrawn
+  }
+  function graphCentrality(s){
+    const edges = [...(s.normative_references||[]), ...(s.related_standards||[])];
+    if(edges.length===0) return 0;
+    const hits = edges.filter(e=>clusterIds.has(e.standard_id)).length;
+    return Math.min(1, hits/2);
+  }
+  function certRelevance(s){
+    return CERT_RULES.some(r=>r.standard_id===s.standard_id && ruleMatches(r, attrs)) ? 1 : 0;
+  }
+
+  const final = cluster.map(c=>{
+    const sb = statusBonus(c.s);
+    const gc = graphCentrality(c.s);
+    const cr = certRelevance(c.s);
+    const finalScore = 0.30*c.semantic + 0.15*c.lexical + 0.20*c.attributeMatch + 0.10*c.scope + 0.10*c.rerank + 0.05*sb + 0.05*gc + 0.05*cr;
+    const confidence = Math.round(100 * finalScore * c.coverage);
+    return {...c, statusBonus:sb, graphCentrality:gc, certRelevance:cr, finalScore, confidence};
+  }).sort((a,b)=>b.finalScore-a.finalScore);
+
+  return final.slice(0,5);
+}
+
+function ruleMatches(rule, attrs){
+  if(!rule.conditions || rule.conditions.length===0) return true;
+  return rule.conditions.every(c=>{
+    const v = attrs[c.field];
+    if(v===null || v===undefined) return false;
+    if(c.op==="in") return c.value.includes(v);
+    if(c.op===">=") return v>=c.value;
+    if(c.op==="<=") return v<=c.value;
+    return false;
+  });
+}
+
+function findById(id){ return STANDARDS.find(s=>s.standard_id===id); }
+
+function graphExpand(standard){
+  const refs = (standard.normative_references||[]).map(r=>({...r, node:findById(r.standard_id)}));
+  const rel = (standard.related_standards||[]).map(r=>({...r, node:findById(r.standard_id)}));
+  return [...refs, ...rel].filter(x=>x.node);
+}
+
+function certForStandard(standard, attrs){
+  return CERT_RULES.filter(r=>r.standard_id===standard.standard_id && ruleMatches(r, attrs));
+}
+
+/* Outdated-citation check — pure deterministic lookup, Blueprint Section 12 */
+function normalizeDesig(str){
+  return str.toLowerCase().replace(/[^a-z0-9]/g,"");
+}
+function checkCitations(text){
+  const found = text.match(/IS\s?\d{3,6}(?:\s?\(Part\s?\d+(?:\/Sec\s?\d+)?\))?\s?:?\s?\d{0,4}/gi) || [];
+  const results = [];
+  found.forEach(raw=>{
+    const norm = normalizeDesig(raw);
+    // try full match first, then prefix match (in case year is a query attribute, not a citation year)
+    let hit = STANDARDS.find(s=> normalizeDesig(s.designation)===norm);
+    if(!hit){
+      const rawNoYear = raw.replace(/:?\s?\d{4}$/,"");
+      const normNoYear = normalizeDesig(rawNoYear);
+      hit = STANDARDS.find(s=> normalizeDesig(s.designation).startsWith(normNoYear) && normNoYear.length>5);
+    }
+    if(hit) results.push({raw, hit});
+  });
+  return results;
+}
+
+/* =========================================================================
+   RENDERING
+   ========================================================================= */
+const PIPE_STEPS = ["Parse","Extract","Retrieve","Rank","Graph","Explain"];
+let pipeEl, extractMode="local";
+
+function renderPipeline(){
+  pipeEl = document.getElementById("pipeline");
+  pipeEl.innerHTML = PIPE_STEPS.map(s=>`<div class="pipe-step" data-step="${s}">${s}</div>`).join("");
+}
+function setPipeState(idx, state){
+  const nodes = pipeEl.querySelectorAll(".pipe-step");
+  nodes.forEach((n,i)=>{
+    n.classList.remove("active","done");
+    if(i<idx) n.classList.add("done");
+    if(i===idx) n.classList.add("active");
+  });
+}
+function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+
+function confClass(c){ return c>=85 ? "conf-high" : (c>=70 ? "conf-mid" : "conf-low"); }
+function confLabel(c){ return c>=85 ? "high trust" : (c>=70 ? "review" : "verify"); }
+
+function renderUnderstood(extraction, mode, rawText){
+  const a = extraction.attributes||{};
+  const chips = [];
+  chips.push(`<span class="chip"><span class="k">product</span>${extraction.product||"—"}</span>`);
+  if(a.power_rating_w) chips.push(`<span class="chip"><span class="k">power</span>${a.power_rating_w} W</span>`);
+  if(a.ip_rating) chips.push(`<span class="chip"><span class="k">ingress</span>${a.ip_rating}</span>`);
+  if(a.voltage_v) chips.push(`<span class="chip"><span class="k">voltage</span>${a.voltage_v} V</span>`);
+  if(a.application) chips.push(`<span class="chip"><span class="k">application</span>${a.application}</span>`);
+  if(!a.power_rating_w && !a.ip_rating && !a.voltage_v && !a.application){
+    chips.push(`<span class="chip" style="color:var(--ink-faint)">no structured attributes detected</span>`);
+  }
+  const modeLabel = mode==="ai"
+    ? `<span class="extract-mode ai">Extraction: AI-assisted (Claude, schema-constrained, closed-book)</span>`
+    : `<span class="extract-mode">Extraction: local rules parser (AI extraction unavailable — used automatic fallback)</span>`;
+
+  document.getElementById("understoodPanel").innerHTML = `
+    <h3>As understood</h3>
+    <div class="chip-row">${chips.join("")}</div>
+    ${modeLabel}
+    <span class="toggle-original" id="toggleOriginal">show original text</span>
+    <div class="original-text" id="originalText">${escapeHtml(rawText)}</div>
+  `;
+  document.getElementById("toggleOriginal").onclick = ()=>{
+    const el = document.getElementById("originalText");
+    const showing = el.style.display==="block";
+    el.style.display = showing ? "none" : "block";
+    document.getElementById("toggleOriginal").textContent = showing ? "show original text" : "hide original text";
+  };
+}
+
+function escapeHtml(s){
+  return (s||"").replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+function renderBanner(citations){
+  const wrap = document.getElementById("bannerWrap");
+  if(citations.length===0){ wrap.innerHTML=""; return; }
+  wrap.innerHTML = citations.map(c=>{
+    const s = c.hit;
+    if(s.status==="superseded"){
+      const current = findById(s.superseded_by);
+      const amdList = (current.amendments||[]).map(a=>`AMD ${a.amd_no} (${a.date.slice(0,4)})`).join(" · ") || "none recorded";
+      return `<div class="banner">
+        <div class="banner-head">&#9888; Tender cites a superseded standard</div>
+        <div class="banner-body">
+          Citation found: <b>${escapeHtml(c.raw.trim())}</b> — status <b>SUPERSEDED</b><br>
+          Current edition: <b>${current.designation}</b><br>
+          Amendments since: ${amdList}
+        </div>
+        <div class="banner-actions">
+          <button class="ghost" disabled>Update clause automatically</button>
+          <button class="ghost" disabled>View diff</button>
+        </div>
+      </div>`;
+    } else if(s.status==="withdrawn"){
+      return `<div class="banner">
+        <div class="banner-head">&#9888; Tender cites a withdrawn standard</div>
+        <div class="banner-body">Citation found: <b>${escapeHtml(c.raw.trim())}</b> is withdrawn and no longer valid — replace immediately.</div>
+      </div>`;
+    } else {
+      const amdCount = (s.amendments||[]).length;
+      return `<div class="banner ok">
+        <div class="banner-head">&#10003; Citation verified current</div>
+        <div class="banner-body">
+          <b>${s.designation}</b> is the current edition${amdCount ? ` — ${amdCount} amendment(s) on record, review recommended` : ", no outstanding amendments"}.
+        </div>
+      </div>`;
+    }
+  }).join("");
+}
+
+function renderResults(results, attrs){
+  const wrap = document.getElementById("cardsWrap");
+  document.getElementById("resultsCount").textContent = `${results.length} match${results.length===1?"":"es"} ranked`;
+  wrap.innerHTML = results.map((r,i)=>{
+    const s = r.s;
+    const statusPill = s.status==="current"
+      ? `<span class="status-pill status-current">current</span>`
+      : `<span class="status-pill status-superseded">${s.status}</span>`;
+    const allied = graphExpand(s);
+    const alliedHtml = allied.length
+      ? allied.map(a=>`<div class="graph-node ${a.relation}"><span class="rel">${a.relation.replace("_"," ")}</span>${a.node.designation}</div>`).join("")
+      : `<span class="graph-none">No normative references recorded for this standard.</span>`;
+
+    const certs = certForStandard(s, attrs);
+    const certHtml = certs.length
+      ? certs.map(c=>`<div class="cert-card"><div class="cert-top"><span>${c.certification_type}</span><span>${c.mandatory?"MANDATORY":"optional"}</span></div><div class="cert-legal">${c.legal_basis}</div></div>`).join("")
+      : `<span class="cert-none">No certification rule fires for this standard given the extracted attributes.</span>`;
+
+    const evidenceItems = [
+      {ok:r.semantic>0.15 || r.lexical>0.15, label:"Product/category semantically matched"},
+      {ok:r.attributeMatch>0.5, label:"Key attributes matched (power / IP / voltage / application)"},
+      {ok:s.status==="current", label:"Status: current edition, not superseded"},
+      {ok:r.graphCentrality>0, label:`Referenced by graph cluster: ${allied.length} allied standard(s) found`},
+      {ok:r.certRelevance>0, label:"Mandatory certification rule matched"}
+    ];
+    const evidenceHtml = evidenceItems.map(e=>`<li><span class="${e.ok?'ok':'no'}">${e.ok?'✓':'✗'}</span>${e.label}</li>`).join("");
+
+    const scoreRows = [
+      ["Semantic similarity (proxy)", r.semantic, 0.30],
+      ["Lexical / BM25 proxy", r.lexical, 0.15],
+      ["Attribute match", r.attributeMatch, 0.20],
+      ["Scope-text match", r.scope, 0.10],
+      ["Rerank proxy", r.rerank, 0.10],
+      ["Status bonus", r.statusBonus, 0.05],
+      ["Graph centrality", r.graphCentrality, 0.05],
+      ["Certification relevance", r.certRelevance, 0.05]
+    ];
+    const scoreHtml = scoreRows.map(([label,val,w])=>`
+      <tr>
+        <td>${label} <span style="color:var(--ink-faint)">×${w}</span></td>
+        <td class="bar"><div class="bar-track"><div class="bar-fill" style="width:${Math.round(val*100)}%"></div></div></td>
+        <td class="val">${val.toFixed(2)}</td>
+      </tr>`).join("");
+
+    const evidenceObj = {
+      standard: s.designation,
+      confidence: r.confidence,
+      matched_category: r.semantic>0.15,
+      matched_attributes: attrs,
+      status: s.status,
+      allied_standards: allied.map(a=>a.node.designation),
+      certification: certs.map(c=>c.certification_type)
+    };
+
+    return `<div class="card ${i===0?'rank1':''}" data-idx="${i}">
+      <div class="card-top" onclick="toggleCard(${i})">
+        <div>
+          <div class="card-id">${s.standard_id}${statusPill}</div>
+          <div class="card-title">${s.designation} — ${s.title}</div>
+          <div class="card-scope">${s.scope}</div>
+        </div>
+        <div class="badge-conf ${confClass(r.confidence)}">
+          <div class="num">${r.confidence}%</div>
+          <div class="lbl">${confLabel(r.confidence)}</div>
+        </div>
+      </div>
+      <div class="card-detail" id="detail-${i}">
+        <ul class="evidence-list">${evidenceHtml}</ul>
+        <div class="detail-grid">
+          <div class="detail-block">
+            <h4>Allied standards (graph expansion)</h4>
+            <div class="graph-strip">${alliedHtml}</div>
+          </div>
+          <div class="detail-block">
+            <h4>Certification</h4>
+            ${certHtml}
+          </div>
+        </div>
+        <div class="detail-block" style="margin-top:14px;">
+          <h4>Score breakdown</h4>
+          <table class="score-table"><tbody>${scoreHtml}</tbody></table>
+        </div>
+        <button class="ghost explain-btn" onclick='requestExplain(${i}, ${JSON.stringify(JSON.stringify(evidenceObj))})'>Generate plain-English explanation (AI, closed-book)</button>
+        <div class="explain-out" id="explain-${i}"></div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function toggleCard(i){
+  const el = document.getElementById("detail-"+i);
+  el.classList.toggle("open");
+}
+
+async function requestExplain(i, evidenceJsonStr){
+  const evidence = JSON.parse(evidenceJsonStr);
+  const out = document.getElementById("explain-"+i);
+  out.classList.add("show");
+  out.innerHTML = "Generating explanation from verified evidence only…";
+  try{
+    const text = await llmExplain(evidence);
+    out.innerHTML = escapeHtml(text) + `<div class="src">Phrased by Claude from the evidence object only — no new facts permitted by the prompt.</div>`;
+  }catch(e){
+    const tmpl = `${evidence.standard} was ranked with ${evidence.confidence}% confidence. `+
+      `${evidence.allied_standards.length ? "Allied standards to also cite: "+evidence.allied_standards.join(", ")+". " : ""}`+
+      `${evidence.certification.length ? "Certification required: "+evidence.certification.join(", ")+"." : "No certification rule matched."}`;
+    out.innerHTML = escapeHtml(tmpl) + `<div class="src">AI phrasing unavailable — showing template built directly from the evidence object (no LLM involved).</div>`;
+  }
+}
+window.toggleCard = toggleCard;
+window.requestExplain = requestExplain;
+
+/* =========================================================================
+   LIVE EVALUATION — real computation, not fabricated numbers
+   ========================================================================= */
+function keywordOnlyTop3(query){
+  const qTok = new Set(tokenize(query));
+  const scored = STANDARDS.map(s=>{
+    const titleTok = new Set(tokenize(s.title));
+    let overlap=0;
+    qTok.forEach(t=>{ if(titleTok.has(t)) overlap++; });
+    return {s, score:overlap};
+  }).sort((a,b)=>b.score-a.score);
+  return scored.slice(0,3).map(x=>x.s.standard_id);
+}
+
+function runEvaluation(){
+  let kwPrecisionSum=0, hyPrecisionSum=0, kwAlliedSum=0, hyAlliedSum=0;
+  BENCHMARK.forEach(b=>{
+    // keyword baseline
+    const kwTop3 = keywordOnlyTop3(b.query);
+    kwPrecisionSum += kwTop3.includes(b.primary) ? 1 : 0;
+    const kwAlliedFound = b.allied.filter(id=>kwTop3.includes(id)).length;
+    kwAlliedSum += kwAlliedFound/b.allied.length;
+
+    // our hybrid + graph engine
+    const extraction = regexExtract(b.query);
+    const ranked = scoreAll(b.query, extraction);
+    const hyTop3 = ranked.slice(0,3).map(r=>r.s.standard_id);
+    hyPrecisionSum += hyTop3.includes(b.primary) ? 1 : 0;
+    // allied recall includes graph-expanded companions of the #1 result, as the real system would surface them
+    const top1 = ranked[0] ? ranked[0].s : null;
+    const graphIds = top1 ? graphExpand(top1).map(a=>a.node.standard_id) : [];
+    const hyFoundSet = new Set([...hyTop3, ...graphIds]);
+    const hyAlliedFound = b.allied.filter(id=>hyFoundSet.has(id)).length;
+    hyAlliedSum += hyAlliedFound/b.allied.length;
+  });
+  const n = BENCHMARK.length;
+  return {
+    kwPrecision: kwPrecisionSum/n,
+    hyPrecision: hyPrecisionSum/n,
+    kwAllied: kwAlliedSum/n,
+    hyAllied: hyAlliedSum/n
+  };
+}
+
+function renderEval(res){
+  const rows = [
+    {label:"Primary standard found in top-3", kw:res.kwPrecision, hy:res.hyPrecision},
+    {label:"Allied-standard recall", kw:res.kwAllied, hy:res.hyAllied}
+  ];
+  const bars = document.getElementById("evalBars");
+  bars.innerHTML = rows.map(r=>`
+    <div class="eval-row">
+      <div class="lbl">${r.label} — keyword-only</div>
+      <div class="eval-track"><div class="eval-fill keyword" style="width:${Math.round(r.kw*100)}%"></div></div>
+      <div class="eval-val">${Math.round(r.kw*100)}%</div>
+    </div>
+    <div class="eval-row">
+      <div class="lbl">${r.label} — Smart Standard Engine hybrid</div>
+      <div class="eval-track"><div class="eval-fill hybrid" style="width:${Math.round(r.hy*100)}%"></div></div>
+      <div class="eval-val">${Math.round(r.hy*100)}%</div>
+    </div>
+  `).join("");
+  document.getElementById("evalNote").innerHTML =
+    `Keyword-only search cannot traverse normative references by construction, so its allied-standard recall is
+    structurally capped — this is the single chart the blueprint recommends leading with in the pitch (Section 10).
+    Numbers above are computed from this prototype's own 12-record dataset and 3-query benchmark; scale the
+    benchmark to 20–30 queries per Section 26 before presenting to judges.`;
+}
+
+document.getElementById("runEvalBtn").addEventListener("click", ()=>{
+  const res = runEvaluation();
+  renderEval(res);
+});
+
+/* =========================================================================
+   MAIN ANALYSIS FLOW
+   ========================================================================= */
+async function analyze(){
+  const text = document.getElementById("queryInput").value.trim();
+  if(!text) return;
+
+  document.getElementById("emptyState").style.display="none";
+  document.getElementById("resultsWrap").style.display="block";
+  renderPipeline();
+  const btn = document.getElementById("analyzeBtn");
+  btn.disabled = true; btn.textContent = "Analyzing…";
+
+  setPipeState(0); // Parse
+  await sleep(150);
+
+  setPipeState(1); // Extract
+  let extraction, mode;
+  try{
+    extraction = await llmExtract(text);
+    mode = "ai";
+  }catch(e){
+    extraction = regexExtract(text);
+    mode = "local";
+  }
+  // Always fill any AI-missed fields from the local parser as a safety net
+  const localFallback = regexExtract(text);
+  Object.keys(localFallback.attributes).forEach(k=>{
+    if(extraction.attributes[k]===undefined || extraction.attributes[k]===null){
+      extraction.attributes[k] = localFallback.attributes[k];
+    }
+  });
+  if(!extraction.product) extraction.product = localFallback.product;
+  renderUnderstood(extraction, mode, text);
+
+  setPipeState(2); // Retrieve
+  await sleep(120);
+  setPipeState(3); // Rank
+  const results = scoreAll(text, extraction);
+  await sleep(120);
+
+  setPipeState(4); // Graph
+  const citations = checkCitations(text);
+  renderBanner(citations);
+  await sleep(120);
+
+  setPipeState(5); // Explain
+  renderResults(results, extraction.attributes);
+  await sleep(150);
+  setPipeState(6);
+
+  btn.disabled=false; btn.textContent="Analyze specification";
+
+  // auto-open the top card
+  const first = document.getElementById("detail-0");
+  if(first) first.classList.add("open");
+}
+
+document.getElementById("analyzeBtn").addEventListener("click", analyze);
+document.querySelectorAll(".example-btn").forEach(b=>{
+  b.addEventListener("click", ()=>{
+    const idx = parseInt(b.getAttribute("data-ex"),10);
+    document.getElementById("queryInput").value = EXAMPLES[idx];
+  });
+});
+</script>
+</body>
+</html>
